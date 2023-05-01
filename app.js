@@ -3,6 +3,7 @@ const gallery = document.querySelector('.gallery');
 const galleryHeader = document.querySelector('.gallery-header');
 const search = document.getElementById('search');
 const searchBtn = document.getElementById('search-btn');
+const errorMessage = document.getElementById("error-message");
 const sliderBtn = document.getElementById('create-slider');
 const sliderContainer = document.getElementById('sliders');
 // selected image 
@@ -33,9 +34,18 @@ const showImages = (images) => {
 const getImages = (query) => {
   fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
     .then(response => response.json())
-    .then(data => showImages(data.hits))
+    .then(data => {
+      if(data.hits.length > 0){
+        imagesArea.style.display = 'none';
+        showImages(data.hits);
+        errorMessage.innerHTML = "";
+      }
+      else{
+        return errorMessage.innerHTML = "Data not found";
+      }      
+    })
     .catch(err => console.log(err))
-}
+};
 
 let slideIndex = 0;
 const selectItem = (event, img) => {
@@ -117,10 +127,19 @@ const changeSlide = (index) => {
 searchBtn.addEventListener('click', function () {
   document.querySelector('.main').style.display = 'none';
   clearInterval(timer);
+  const search = document.getElementById("search");
+  if(search.value.length == 0){
+    imagesArea.style.display = 'none';
+    errorMessage.innerHTML = "Please write something";
+    return;
+  }
+  else{
+    // errorMessage.style.display = 'none';
+    getImages(search.value);
+    search.value = '';
+    sliders.length = 0;
+  }
   
-  getImages(search.value);
-  search.value = '';
-  sliders.length = 0;
 })
 
 sliderBtn.addEventListener('click', function () {
